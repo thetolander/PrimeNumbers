@@ -55,13 +55,12 @@ class Prime:
                             # Find first factor using k**2 unless
                             # not in current array range
                             start   = k if ksq < first else ksq
-                            isprime = self._update(isprime, k, start, first, last, arrlen)
+                            self._update(isprime, k, start, first, last, arrlen)
                         else:
-                            return isprime
+                            return
             except:
                 # Run out of known primes
                 pass
-        return isprime
     
     # _search_k marks factors of new primes
     def _search_k(self, isprime, SQRTL, k, first, last, arrlen):
@@ -71,12 +70,13 @@ class Prime:
             if isprime[ip]:
                 # Current k**2 must fall within this range or
                 # the loop would have exited, start at k**2
-                isprime = self._update(isprime, k, k**2, first, last, arrlen)
+                self._update(isprime, k, k**2, first, last, arrlen)
             # Increment bool pointer by 1
             ip += 1
             # Index value under test by 2 since evens are not prime
             k  += 2
-        return isprime, k
+        #return isprime, k
+        return k
     
     # _update marks all factors of current prime False
     def _update(self, isprime, k, start, first, last, arrlen):
@@ -87,7 +87,6 @@ class Prime:
         ix  = m if m==0 else (start - m)/2 if m&1 else (2*start - m)/2
         # Mark factors of k starting at first index
         if ix < arrlen: isprime[ix::k] = False
-        return isprime
     
     # search_c will find all primes in a given range (self.n)
     # by breaking that range into chunks (size.c) and storing 
@@ -116,9 +115,9 @@ class Prime:
                       %(first, last, k, SQRTL, SQRTN, self._nprimes))
             # If any primes have been found, mark their factors False
             if os.path.exists(self.dbname):
-                isprime    = self._search_p(isprime, SQRTL, first, last, arrlen)
+                self._search_p(isprime, SQRTL, first, last, arrlen)
             # Mark factors of new primes False
-            isprime, k = self._search_k(isprime, SQRTL, k, first, last, arrlen)
+            k = self._search_k(isprime, SQRTL, k, first, last, arrlen)
             # Efficiently serialize (marshal) prime numbers to disk
             with open(self.dbname, 'ab') as dbfile:
                 pdump = np.where(isprime)[0]*2 + first
